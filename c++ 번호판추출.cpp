@@ -11,7 +11,7 @@
 #include<zlib.h>
 #include<string.h>
 
-#define WIN_NAME "ÀÚµ¿Â÷ ¹øÈ£ÆÇ ÀÎ½Ä"
+#define WIN_NAME "ìë™ì°¨ ë²ˆí˜¸íŒ ì¸ì‹"
 #define IMAGE_PATH "k1.jpg" // 1, 5, 6
 #define CANNY_THRESHOLD_1 100
 #define CANNY_THRESHOLD_2 200
@@ -25,18 +25,18 @@ using namespace std;
 using namespace cv;
 
 /**
-*	¸ŞÀÎ ¸Ş¼Òµå
+*	ë©”ì¸ ë©”ì†Œë“œ
 */
 int main(int argc, char *argv[]) {
 	char* UTF8ToANSI(char*);
-	// ÀÌ¹ÌÁö ·Îµå
+	// ì´ë¯¸ì§€ ë¡œë“œ
 	Mat image = imread(IMAGE_PATH);
 	Mat temp = imread("k2.jpg");
 	Mat proccessedImage;
 	int rows = image.rows;
 	int cols = image.cols;
 	imshow("Initial Image", image);
-	// ±×·¹ÀÌ ½ºÄÉÀÏ·Î º¯È¯
+	// ê·¸ë ˆì´ ìŠ¤ì¼€ì¼ë¡œ ë³€í™˜
 	cvtColor(image, proccessedImage, CV_BGR2GRAY);
 
 	/*byte* data = (byte*)image.data;
@@ -56,28 +56,28 @@ int main(int argc, char *argv[]) {
 		data[i + 2] = gray;
 	}*/
 //	GaussianBlur(proccessedImage, proccessedImage,Size(5,5),0, 0);
-	// canny ¾Ë°í¸®ÁòÀ» ÀÌ¿ëÇÏ¿© À±°û¼±¸¸ ³²±è
+	// canny ì•Œê³ ë¦¬ì¦˜ì„ ì´ìš©í•˜ì—¬ ìœ¤ê³½ì„ ë§Œ ë‚¨ê¹€
 	Canny(proccessedImage, proccessedImage, CANNY_THRESHOLD_1, CANNY_THRESHOLD_2);
 
 //	dilate(proccessedImage, proccessedImage, Mat(), Point(0, 0));
-	// À±°û¼±À» °¡Á®¿È
+	// ìœ¤ê³½ì„ ì„ ê°€ì ¸ì˜´
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(proccessedImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point());
 	vector<vector<Point>> contoursPoly(contours.size());
 	vector<Rect> boundRect(contours.size());
 	vector<Rect> boundRect2(contours.size());
-	// À±°û¼± ¸¶´Ù »ç°¢ÇüÀ» ¾º¿ö boundRect¿¡ ÀúÀå
-	// °°Àº °ªÀÌ 2°³¾¿ ³ª¿È
+	// ìœ¤ê³½ì„  ë§ˆë‹¤ ì‚¬ê°í˜•ì„ ì”Œì›Œ boundRectì— ì €ì¥
+	// ê°™ì€ ê°’ì´ 2ê°œì”© ë‚˜ì˜´
 	for (int i = 0; i < contours.size(); i++) {
 		approxPolyDP(Mat(contours[i]), contoursPoly[i], 1, true);
 		boundRect[i] = boundingRect(Mat(contoursPoly[i]));
 	}
 
-	// ¹øÈ£ÆÇ ÈÄº¸±º °¹¼ö ÀúÀå º¯¼ö
+	// ë²ˆí˜¸íŒ í›„ë³´êµ° ê°¯ìˆ˜ ì €ì¥ ë³€ìˆ˜
 	int refineryCount = 0;
 
-	// À±°û¼± Áß ¹øÈ£ÆÇ ÈÄº¸°¡ µÉ ¼ö ÀÖ´Â °Í¸¸ ³²±è (°¡·Î, ¼¼·Î ºñÀ² ¹× Å©±â·Î ÆÇ´Ü)
+	// ìœ¤ê³½ì„  ì¤‘ ë²ˆí˜¸íŒ í›„ë³´ê°€ ë  ìˆ˜ ìˆëŠ” ê²ƒë§Œ ë‚¨ê¹€ (ê°€ë¡œ, ì„¸ë¡œ ë¹„ìœ¨ ë° í¬ê¸°ë¡œ íŒë‹¨)
 	for (int i = 0; i < contours.size(); i++) {
 		double widthHeightRatio = (double)boundRect[i].height / boundRect[i].width;
 		if (widthHeightRatio <= MAX_WIDTH_HEIGHT_RATIO &&
@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 	// imshow("contours&rectangels", temp);
 
 	boundRect2.resize(refineryCount);
-	// Ãß·Á³½ ¹øÈ£ÆÇ ÈÄº¸±º À±°û¼±À» x ÁÂÇ¥ ±âÁØÀ¸·Î Á¤·Ä
+	// ì¶”ë ¤ë‚¸ ë²ˆí˜¸íŒ í›„ë³´êµ° ìœ¤ê³½ì„ ì„ x ì¢Œí‘œ ê¸°ì¤€ìœ¼ë¡œ ì •ë ¬
 	for (int i = 0; i < boundRect2.size(); i++) {
 		for (int j = 0; j < boundRect2.size()-i - 1; j++) {
 			if (boundRect2[j].tl().x > boundRect2[j + 1].tl().x) {
@@ -101,13 +101,13 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	// ¹øÈ£ÆÇ À±°û¼± °´Ã¼ÀÇ ½ÃÀÛ ÀÎµ¦½º
+	// ë²ˆí˜¸íŒ ìœ¤ê³½ì„  ê°ì²´ì˜ ì‹œì‘ ì¸ë±ìŠ¤
 	int startIdx = 0;
 
-	// ÀÎÁ¢ À±°û¼± °¹¼ö ÀúÀå º¯¼ö
+	// ì¸ì ‘ ìœ¤ê³½ì„  ê°¯ìˆ˜ ì €ì¥ ë³€ìˆ˜
 	int adjecentCount = 0;
 
-	// ¹øÈ£ÆÇ °¡·Î ±æÀÌ ÀúÀå º¯¼ö
+	// ë²ˆí˜¸íŒ ê°€ë¡œ ê¸¸ì´ ì €ì¥ ë³€ìˆ˜
 	double carLicensePlateWidth = 0;
 
 	for (int i = 0; i < boundRect2.size(); i++) {
@@ -115,47 +115,47 @@ int main(int argc, char *argv[]) {
 		double deltaX = 0.0;
 
 		for (int j = i + 1; j < boundRect2.size(); j++) {
-			// ÇöÀç À±°û¼±ÀÇ x ÁÂÇ¥¿Í ÃÖ´Ü °Å¸® ÀÎÁ¢ À±°û¼±ÀÇ x ÁÂÇ¥ »çÀÌÀÇ °Å¸®¸¦ ±¸ÇÔ
+			// í˜„ì¬ ìœ¤ê³½ì„ ì˜ x ì¢Œí‘œì™€ ìµœë‹¨ ê±°ë¦¬ ì¸ì ‘ ìœ¤ê³½ì„ ì˜ x ì¢Œí‘œ ì‚¬ì´ì˜ ê±°ë¦¬ë¥¼ êµ¬í•¨
 			deltaX = abs(boundRect2[j].tl().x - boundRect2[i].tl().x);
 
-			// °Å¸®°¡ ³Ê¹« ¶³¾îÁ® ÀÖ´Â °æ¿ì ÈÄº¸±º¿¡¼­ Á¦¿Ü ½ÃÅ´
+			// ê±°ë¦¬ê°€ ë„ˆë¬´ ë–¨ì–´ì ¸ ìˆëŠ” ê²½ìš° í›„ë³´êµ°ì—ì„œ ì œì™¸ ì‹œí‚´
 			if (deltaX > (double)MIN_RECT_AREA) {
 				break;
 			}
 
-			// ±â¿ï±â¸¦ ±¸ÇÒ ¶§ 0À¸·Î ³ª´©´Â ¿¹¿Ü ¹æÁö
+			// ê¸°ìš¸ê¸°ë¥¼ êµ¬í•  ë•Œ 0ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ì˜ˆì™¸ ë°©ì§€
 			if (deltaX == 0.0) {
 				deltaX = 1.0;
 			}
 
-			// ÇöÀç À±°û¼±ÀÇ y ÁÂÇ¥¿Í ÃÖ´Ü °Å¸® ÀÎÁ¢ À±°û¼±ÀÇ y ÁÂÇ¥ »çÀÌÀÇ °Å¸®¸¦ ±¸ÇÔ
+			// í˜„ì¬ ìœ¤ê³½ì„ ì˜ y ì¢Œí‘œì™€ ìµœë‹¨ ê±°ë¦¬ ì¸ì ‘ ìœ¤ê³½ì„ ì˜ y ì¢Œí‘œ ì‚¬ì´ì˜ ê±°ë¦¬ë¥¼ êµ¬í•¨
 			double deltaY = abs(boundRect2[j].tl().y - boundRect2[i].tl().y);
 
-			// ±â¿ï±â¸¦ ±¸ÇÒ ¶§ 0À¸·Î ³ª´©´Â ¿¹¿Ü ¹æÁö
+			// ê¸°ìš¸ê¸°ë¥¼ êµ¬í•  ë•Œ 0ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ì˜ˆì™¸ ë°©ì§€
 			if (deltaY == 0.0) {
 				deltaY = 1.0;
 			}
 
-			// µÎ À±°û¼±ÀÇ ±â¿ï±â¸¦ ±¸ÇÔ
+			// ë‘ ìœ¤ê³½ì„ ì˜ ê¸°ìš¸ê¸°ë¥¼ êµ¬í•¨
 			double gradient = deltaY / deltaX;
 
-			// ±â¿ï±â°¡ ¹Ì¼¼ÇÏ°Ô Â÷ÀÌ°¡ ÀÖ´Â °æ¿ì ÀÎÁ¢ À±°û¼±À¸·Î Ãß°¡
+			// ê¸°ìš¸ê¸°ê°€ ë¯¸ì„¸í•˜ê²Œ ì°¨ì´ê°€ ìˆëŠ” ê²½ìš° ì¸ì ‘ ìœ¤ê³½ì„ ìœ¼ë¡œ ì¶”ê°€
 			if (gradient < GRADIENT_THRESHOLD) {
 				count++;	
 			}
 		}
 
-		// ÃÖ´ë ÀÎÁ¢ À±°û¼± °¹¼ö »óÅÂ ÀúÀå
+		// ìµœëŒ€ ì¸ì ‘ ìœ¤ê³½ì„  ê°¯ìˆ˜ ìƒíƒœ ì €ì¥
 		if (count > adjecentCount) {
 			startIdx = i;
 			adjecentCount = count;
 			carLicensePlateWidth = deltaX;
 		}
 	}
-	// À©µµ¿ì »ı¼º
+	// ìœˆë„ìš° ìƒì„±
 //	namedWindow(WIN_NAME);
 	
-	// À©µµ¿ì¿¡ °á°ú Ç¥½Ã
+	// ìœˆë„ìš°ì— ê²°ê³¼ í‘œì‹œ
 	/*imshow(
 		WIN_NAME,
 		image(
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 	tess.End();
 	delete[] out;
 
-	cout << "¾Æ¹« Å°³ª ´©¸£½Ã¸é Á¾·áÇÕ´Ï´Ù." << endl;
+	cout << "ì•„ë¬´ í‚¤ë‚˜ ëˆ„ë¥´ì‹œë©´ ì¢…ë£Œí•©ë‹ˆë‹¤." << endl;
 
 	waitKey();
 	
@@ -204,27 +204,27 @@ char* UTF8ToANSI(char *pszCode)
 	BSTR    bstrWide;
 	char*   pszAnsi;
 	int     nLength;
-	// bstrWide ¹è¿­ »ı¼º Lenth¸¦ ÀĞ¾î ¿Â´Ù.
+	// bstrWide ë°°ì—´ ìƒì„± Lenthë¥¼ ì½ì–´ ì˜¨ë‹¤.
 	nLength = MultiByteToWideChar(CP_UTF8, 0, pszCode, lstrlen((LPWSTR)pszCode) + 1, NULL, NULL);
 
-	// bstrWide ¸Ş¸ğ¸® ¼³Á¤
+	// bstrWide ë©”ëª¨ë¦¬ ì„¤ì •
 
 	bstrWide = SysAllocStringLen(NULL, nLength);
 
 	MultiByteToWideChar(CP_UTF8, 0, pszCode, lstrlen((LPWSTR)pszCode) + 1, bstrWide, nLength);
 
 
-	// char ¹è¿­ »ı¼ºÀü Lenth¸¦ ÀĞ¾î ¿Â´Ù.
+	// char ë°°ì—´ ìƒì„±ì „ Lenthë¥¼ ì½ì–´ ì˜¨ë‹¤.
 	nLength = WideCharToMultiByte(CP_ACP, 0, bstrWide, -1, NULL, 0, NULL, NULL);
 
-	// pszAnsi ¹è¿­ »ı¼º
+	// pszAnsi ë°°ì—´ ìƒì„±
 	pszAnsi = new char[nLength];
 
-	// char º¯È¯
+	// char ë³€í™˜
 	WideCharToMultiByte(CP_ACP, 0, bstrWide, -1, pszAnsi, nLength, NULL, NULL);
 
 
-	// bstrWide ¸Ş¸ğ¸® ÇØÁ¦
+	// bstrWide ë©”ëª¨ë¦¬ í•´ì œ
 	SysFreeString(bstrWide);
 
 	return pszAnsi;
