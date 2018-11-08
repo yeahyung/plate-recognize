@@ -5,9 +5,10 @@ from  PIL import Image
 
 class Recognition:
      def ExtractNumber(self):
-          imageName = 'k2.jpg'
+          imageName = 'k1.jpg'
           Number='c:\\'+imageName
           img=cv2.imread(Number,cv2.IMREAD_GRAYSCALE)
+          print(Number)
           wi, hi = img.shape[:2]
           min=0;
           if(wi<500):
@@ -110,7 +111,7 @@ class Recognition:
           er_invplate = er_plate
           cv2.imwrite('er_ho_plate.jpg',er_invplate)
           cv2.imshow('er',er_invplate)
-          result = pytesseract.image_to_string(er_invplate, lang='car2')
+          result = pytesseract.image_to_string(er_invplate, lang='ho+car2')
           
           return(result.replace(" ",""))
 
