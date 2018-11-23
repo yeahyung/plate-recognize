@@ -1,9 +1,10 @@
 import cv2
 import sys
+import numpy as np
  
 (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 if __name__ == '__main__' :
- 
+    os.system('sudo modprobe bcm2835-v4l2')
     # Set up tracker.
     # Instead of MIL, you can also use
  
